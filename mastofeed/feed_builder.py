@@ -62,13 +62,14 @@ class FeedBuilder:
         soup = BeautifulSoup(content, "html.parser")
         summary = soup.get_text()
 
-        feed_entry.summary(summary=summary, type="text")
-        feed_entry.content(content=content, type="html")
-
         for tag in original_status.tags:
             feed_entry.category(term=tag.name, label="#" + tag.name)
 
         self.__add_media_to_entry(feed_entry, original_status.media_attachments)
+        content = self.__add_media_to_content(content, original_status.media_attachments)
+
+        feed_entry.summary(summary=summary, type="text")
+        feed_entry.content(content=content, type="html")
 
     @staticmethod
     def __emojify_content(content, emojis):
@@ -96,7 +97,7 @@ class FeedBuilder:
             frame_rate = None
             duration = None
             bit_rate = None
-            if attachment.type == "video" or attachment.type == "gifv":
+            if attachment.type in ["video", "gifv"]:
                 medium = "video"
                 content_width = str(attachment.meta.original.width)
                 content_height = str(attachment.meta.original.height)
@@ -104,7 +105,7 @@ class FeedBuilder:
                 duration = str(attachment.meta.original.duration)
 
                 # calculate bytes per second (mastodon) to kilobits per second (feedgen)
-                bit_rate = str(attachment.meta.original.bitrate * 0.008)
+                bit_rate = str(round(attachment.meta.original.bitrate * 0.008))
             elif attachment.type == "image":
                 content_width = str(attachment.meta.original.width)
                 content_height = str(attachment.meta.original.height)
@@ -112,7 +113,7 @@ class FeedBuilder:
                 duration = str(attachment.meta.original.duration)
 
                 # calculate bytes per second (mastodon) to kilobits per second (feedgen)
-                bit_rate = str(attachment.meta.original.bitrate * 0.008)
+                bit_rate = str(round(attachment.meta.original.bitrate * 0.008))
             else:
                 medium = None
             thumbnail_url = attachment.preview_url
@@ -122,3 +123,30 @@ class FeedBuilder:
             feed_entry.media.content(url=content_url, medium=medium, width=content_width, height=content_height,
                                      framerate=frame_rate, duration=duration, bitrate=bit_rate)
             feed_entry.media.thumbnail(url=thumbnail_url, width=thumbnail_width, height=thumbnail_height)
+
+    @staticmethod
+    def __add_media_to_content(content, media_attachments):
+        for attachment in media_attachments:
+            attachment_string : str
+            url = attachment.url
+            alt = attachment.description
+            if attachment.type == "image":
+                attachment_string = (f'<p><a href="{url}">'
+                                     f'<img src="{url}" alt="{alt}"/>'
+                                     '</a></p>')
+            elif attachment.type in ["video", "gifv"]:
+                preview_url = attachment.preview_url
+                attachment_string = (f'<p><a href="{url}">'
+                                     f'<p><img src="{preview_url}" alt="{alt}"/></p>'
+                                     f'\U000021B3 \U0001F3A5: {alt} \U00002197'
+                                     '</a></p>')
+            elif attachment.type == "audio":
+                attachment_string = (f'<p><a href="{url}">'
+                                     f'\U0001F3A7: {alt} \U00002197'
+                                     '</a></p>')
+            else:
+                attachment_string = (f'<p><a href="{url}">'
+                                     f'\U0001F4CE: {alt} \U00002197'
+                                     '</a></p>')
+            content += attachment_string
+        return content
