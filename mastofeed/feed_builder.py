@@ -19,7 +19,7 @@ class FeedBuilder:
     def __build_feed_generator(self, feed_url):
         self.feed_generator = FeedGenerator()
 
-        self.feed_generator.title("\U0001F3E0 " + self.mastodon_client.get_user().username +
+        self.feed_generator.title("\U0001F3E0 @" + self.mastodon_client.get_user().username +
                                   "@" + self.mastodon_client.get_instance_domain())
         self.feed_generator.subtitle(f"\U0001F464: {self.mastodon_client.get_user().display_name} " +
                                      f"({self.mastodon_client.get_user().username});\t" +
@@ -138,15 +138,15 @@ class FeedBuilder:
                 preview_url = attachment.preview_url
                 attachment_string = (f'<p><a href="{url}">'
                                      f'<p><img src="{preview_url}" alt="{alt}"/></p>'
-                                     f'\U000021B3 \U0001F3A5: {alt} \U00002197'
+                                     f'\U000021B3 \U0001F3A5: {alt}'
                                      '</a></p>')
             elif attachment.type == "audio":
                 attachment_string = (f'<p><a href="{url}">'
-                                     f'\U0001F3A7: {alt} \U00002197'
+                                     f'\U0001F3A7: {alt}'
                                      '</a></p>')
             else:
                 attachment_string = (f'<p><a href="{url}">'
-                                     f'\U0001F4CE: {alt} \U00002197'
+                                     f'\U0001F4CE: {alt}'
                                      '</a></p>')
             content += attachment_string
         return content
