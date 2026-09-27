@@ -63,7 +63,7 @@ class MastodonClient:
         return self.INSTANCE_URL + "/home"
 
     def get_instance_icon(self):
-        return self.mastodon.instance_v2().icon[0].src
+        return self.mastodon.instance_v2().icon[-1].src
 
     def get_instance_language(self):
         return self.mastodon.instance_v2().languages[0]

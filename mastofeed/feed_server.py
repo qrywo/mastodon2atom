@@ -9,6 +9,23 @@ feed_builder = FeedBuilder(mastodon_client)
 
 @app.route("/")
 def default():
+    icon_url = mastodon_client.get_instance_icon()
+    page = ('<!DOCTYPE html>'
+            '<html>'
+            '<head>'
+            f'<link rel="icon" href="{icon_url}"/>'
+            f'<link rel="apple-touch-icon" href="{icon_url}"/>'
+            '</head>'
+            '<body>'
+            '<h1>Your mastofeed server is running!</h1>'
+            f'<p>Use <a href="{url_for("login")}">this link</a> to log in and authorize mastofeed.</p>'
+            f'<p>Use <a href="{url_for("feed")}">this link</a> to access the home timeline as an ATOM feed.</p>'
+            '</body>'
+            '</html>')
+    return Response(page)
+
+@app.route("/login")
+def login():
     if not mastodon_client.is_access_provided():
         return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True)))
     return redirect(url_for("feed"))
