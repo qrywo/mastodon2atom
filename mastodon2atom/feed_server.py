@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, request, Response, abort
-from mastofeed.mastodon_client import MastodonClient
-from mastofeed.feed_builder import FeedBuilder
+from mastodon2atom.mastodon_client import MastodonClient
+from mastodon2atom.feed_builder import FeedBuilder
 
 app = Flask("mastodon2atom")
 mastodon_client = MastodonClient()
