@@ -1,5 +1,5 @@
 .env
 .data/.env
 .idea/
-mastofeed/__pycache__/
+mastodon2atom/__pycache__/
 .venv/

@@ -1,3 +1,3 @@
-# mastofeed
+# mastodon2atom
 
 WIP

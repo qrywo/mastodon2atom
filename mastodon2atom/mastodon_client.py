@@ -5,7 +5,7 @@ from dotenv import load_dotenv, set_key
 class MastodonClient:
 
     def __init__(self):
-        self.APP_NAME = "mastofeed"
+        self.APP_NAME = "mastodon2atom"
         self.APP_SCOPES = ["read:statuses", "read:accounts"]
 
         self.ENV_FILE_PATH = "./.data/.env"

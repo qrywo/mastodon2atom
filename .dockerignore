@@ -3,6 +3,6 @@
 .git/
 .gitignore
 .idea/
-mastofeed/__pycache__/
+mastodon2atom/__pycache__/
 README.md
 .venv/
