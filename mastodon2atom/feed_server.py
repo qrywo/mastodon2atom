@@ -3,7 +3,6 @@ import hmac
 from mastodon2atom.mastodon_client import MastodonClient
 from mastodon2atom.feed_builder import FeedBuilder
 import os
-import sys
 
 app = Flask("mastodon2atom")
 mastodon_client = MastodonClient()
@@ -66,16 +65,24 @@ def ask_for_authorization():
                     headers={"WWW-Authenticate" : 'Basic realm="mastodon2atom"'})
 
 
-def check_app_password_validity():
+def is_app_password_valid():
     password = os.getenv("APP_PASSWORD")
     black_list = ['"', "'", "@", ":", "/", "\\", " ", "password", "mastodon", "atom", "mastodon2atom", "feed", "12345678"]
     if not password or len(password) < 8:
-        sys.exit("The app password is either not specified or too short!")
+        return "The app password is either not specified or too short!"
     for black_string in black_list:
         if black_string in password:
-            sys.exit(f"The password contains the following invalid string: {black_string}")
+            return f"The password contains the following invalid string: {black_string}"
+    return None
 
 
-check_app_password_validity()
+app_password_invalid_response = is_app_password_valid()
+if app_password_invalid_response:
+    @app.before_request
+    def invalid_app_password():
+        return Response(response=app_password_invalid_response,
+                        status=503)
+
+
 if __name__ == "__main__":
     app.run()
