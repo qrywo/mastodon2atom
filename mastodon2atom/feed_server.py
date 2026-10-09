@@ -30,7 +30,7 @@ def verify_app_password(username, password):
     return username_ok and password_ok
 
 
-@app.route("/")
+@app.get("/")
 @authentication.login_required
 def home():
     if not mastodon_client.is_access_provided():
@@ -53,7 +53,7 @@ def home():
     return Response(page)
 
 
-@app.route("/oauth/callback")
+@app.get("/oauth/callback")
 @authentication.login_required
 def oauth_callback():
     code = request.args.get("code")
@@ -66,15 +66,15 @@ def oauth_callback():
     return redirect(url_for("home"))
 
 
-@app.route("/feed")
-def feed():
-    feed_token = request.args.get("token")
-    if not feed_token:
+@app.get("/feed", defaults={"token" : None})
+@app.get("/feed/<token>")
+def feed(token):
+    if not token:
         abort(401)
-    token_ok = secrets.compare_digest(feed_token, config_manager.get_app_feed_token())
+    token_ok = secrets.compare_digest(token, config_manager.get_app_feed_token())
     if not mastodon_client.is_access_provided() or not token_ok:
         abort(401)
-    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=feed_token)),
+    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=token)),
                     mimetype="application/xml")
 
 
