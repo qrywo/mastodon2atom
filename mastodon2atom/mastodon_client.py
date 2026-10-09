@@ -1,27 +1,22 @@
 import os
 from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError
-from dotenv import load_dotenv, set_key
+
 
 class MastodonClient:
 
-    def __init__(self):
-        self.APP_NAME = "mastodon2atom"
+    def __init__(self, config_manager):
+        self.config_manager = config_manager
         self.APP_SCOPES = ["read:statuses", "read:accounts"]
 
-        self.ENV_FILE_PATH = "./.data/.env"
-        load_dotenv(self.ENV_FILE_PATH)
 
-        if "MASTODON_INSTANCE_DOMAIN" not in os.environ:
-            os.environ["MASTODON_INSTANCE_DOMAIN"] = "mastodon.social"
-        self.INSTANCE_URL = f"https://{os.getenv('MASTODON_INSTANCE_DOMAIN')}"
-
-        client_id = os.getenv("MASTODON_CLIENT_ID")
-        client_secret = os.getenv("MASTODON_CLIENT_SECRET")
-        access_token = os.getenv("MASTODON_ACCESS_TOKEN")
-        self.mastodon = Mastodon(api_base_url=self.INSTANCE_URL,
-                                 access_token=access_token,
+        api_base_url = self.config_manager.get_mastodon_instance_url()
+        client_id = self.config_manager.get_client_id()
+        client_secret = self.config_manager.get_client_secret()
+        access_token = self.config_manager.get_access_token()
+        self.mastodon = Mastodon(api_base_url=api_base_url,
                                  client_id=client_id,
-                                 client_secret=client_secret)
+                                 client_secret=client_secret,
+                                 access_token=access_token)
 
     def is_access_provided(self):
         try:
@@ -31,16 +26,18 @@ class MastodonClient:
             return False
 
     def get_access_redirect_url(self, oauth_redirect_url):
-        client_id = os.getenv("MASTODON_CLIENT_ID")
-        client_secret = os.getenv("MASTODON_CLIENT_SECRET")
+        api_base_url = self.config_manager.get_mastodon_instance_url()
+        client_id, client_secret = self.config_manager.get_mastodon_client_details()
+
         if client_id is None or client_secret is None:
-            client_id, client_secret = self.mastodon.create_app(client_name=self.APP_NAME,
+            app_name = self.config_manager.get_app_name()
+            client_id, client_secret = self.mastodon.create_app(client_name=app_name,
                                                                 scopes=self.APP_SCOPES,
-                                                                api_base_url=self.INSTANCE_URL,
+                                                                api_base_url=api_base_url,
                                                                 redirect_uris=oauth_redirect_url)
-            set_key(self.ENV_FILE_PATH, "MASTODON_CLIENT_ID", client_id)
-            set_key(self.ENV_FILE_PATH, "MASTODON_CLIENT_SECRET", client_secret)
-        self.mastodon = Mastodon(api_base_url=self.INSTANCE_URL,
+            self.config_manager.set_mastodon_client_details(client_id, client_secret)
+
+        self.mastodon = Mastodon(api_base_url=api_base_url,
                                  client_id=client_id,
                                  client_secret=client_secret)
         return self.mastodon.auth_request_url(scopes=self.APP_SCOPES,
@@ -51,7 +48,7 @@ class MastodonClient:
             access_token = self.mastodon.log_in(code=code,
                                                 scopes=self.APP_SCOPES,
                                                 redirect_uri=oauth_redirect_url)
-            set_key(self.ENV_FILE_PATH, "MASTODON_ACCESS_TOKEN", access_token)
+            self.config_manager.set_mastodon_access_token(access_token)
             return True
         except MastodonIllegalArgumentError:
             return False
@@ -60,7 +57,7 @@ class MastodonClient:
         return self.mastodon.timeline_home()
 
     def get_home_timeline_url(self):
-        return self.INSTANCE_URL + "/home"
+        return self.config_manager.get_mastodon_instance_home_url()
 
     def get_instance_icon(self):
         return self.mastodon.instance_v2().icon[-1].src
@@ -70,10 +67,6 @@ class MastodonClient:
 
     def get_instance_logo(self):
         return self.mastodon.instance_v2().thumbnail.url
-
-    @staticmethod
-    def get_instance_domain():
-        return os.getenv("MASTODON_INSTANCE_DOMAIN")
 
     def get_user(self):
         return self.mastodon.me()

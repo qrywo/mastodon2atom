@@ -4,8 +4,9 @@ from datetime import datetime, timezone
 
 class FeedBuilder:
 
-    def __init__(self, mastodon_client):
+    def __init__(self, mastodon_client, config_manager):
         self.feed_generator = None
+        self.config_manager = config_manager
         self.mastodon_client = mastodon_client
 
     def build_feed(self, feed_url):
@@ -20,10 +21,10 @@ class FeedBuilder:
         self.feed_generator = FeedGenerator()
 
         self.feed_generator.title("\U0001F3E0 @" + self.mastodon_client.get_user().username +
-                                  "@" + self.mastodon_client.get_instance_domain())
+                                  "@" + self.config_manager.get_mastodon_instance_domain())
         self.feed_generator.subtitle(f"\U0001F464: {self.mastodon_client.get_user().display_name} " +
                                      f"({self.mastodon_client.get_user().username});\t" +
-                                     f"\U0001F310: {self.mastodon_client.get_instance_domain()}")
+                                     f"\U0001F310: {self.config_manager.get_mastodon_instance_domain()}")
         self.feed_generator.id(feed_url)
         self.feed_generator.link(href=feed_url, rel="self", type="application/atom+xml")
         self.feed_generator.link(href=self.mastodon_client.get_home_timeline_url(), rel="alternate", type="text/html")
