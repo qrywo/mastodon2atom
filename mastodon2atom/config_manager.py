@@ -9,23 +9,17 @@ class ConfigManager:
 
         self.__app_feed_token = os.getenv("APP_FEED_TOKEN")
 
-        self.__app_name = os.getenv("APP_NAME")
-        if not self.__app_name:
-            self.__app_name = "mastodon2atom"
+        self.__app_name = os.getenv("APP_NAME") or "mastodon2atom"
 
         self.__app_password = os.getenv("APP_PASSWORD")
 
-        self.__app_username = os.getenv("APP_USERNAME")
-        if not self.__app_username:
-            self.__app_username = "mastodon2atom"
+        self.__app_username = os.getenv("APP_USERNAME") or "mastodon2atom"
 
         self.__mastodon_client_id = os.getenv("MASTODON_CLIENT_ID")
         self.__mastodon_client_secret = os.getenv("MASTODON_CLIENT_SECRET")
         self.__mastodon_access_token = os.getenv("MASTODON_ACCESS_TOKEN")
 
-        self.__mastodon_instance_domain = os.getenv("MASTODON_INSTANCE_DOMAIN")
-        if not self.__mastodon_instance_domain:
-            self.__mastodon_instance_domain = "mastodon.social"
+        self.__mastodon_instance_domain = os.getenv("MASTODON_INSTANCE_DOMAIN") or "mastodon.social"
 
     def get_app_feed_token(self):
         return self.__app_feed_token

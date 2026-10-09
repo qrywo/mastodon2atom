@@ -66,15 +66,16 @@ def oauth_callback():
     return redirect(url_for("home"))
 
 
-@app.get("/feed", defaults={"token" : None})
+@app.get("/feed")
 @app.get("/feed/<token>")
 def feed(token):
-    if not token:
+    feed_token = token or request.args.get("token")
+    if not feed_token:
         abort(401)
-    token_ok = secrets.compare_digest(token, config_manager.get_app_feed_token())
-    if not mastodon_client.is_access_provided() or not token_ok:
+    feed_token_ok = secrets.compare_digest(feed_token, config_manager.get_app_feed_token())
+    if not mastodon_client.is_access_provided() or not feed_token_ok:
         abort(401)
-    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=token)),
+    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=feed_token)),
                     mimetype="application/xml")
 
 
