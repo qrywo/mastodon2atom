@@ -68,7 +68,7 @@ def oauth_callback():
 
 @app.get("/feed")
 @app.get("/feed/<token>")
-def feed(token):
+def feed(token=None):
     feed_token = token or request.args.get("token")
     if not feed_token:
         abort(401)
