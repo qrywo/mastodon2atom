@@ -16,9 +16,10 @@ feed_builder = FeedBuilder(mastodon_client, config_manager)
 try:
     config_manager.get_app_password()
 except ValueError as e:
+    error_message = str(e)
     @app.before_request
     def invalid_app_password():
-        return Response(response=str(e),
+        return Response(response=error_message,
                         status=503)
 
 

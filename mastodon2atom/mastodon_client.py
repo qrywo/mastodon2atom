@@ -1,4 +1,3 @@
-import os
 from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError
 
 
@@ -10,9 +9,8 @@ class MastodonClient:
 
 
         api_base_url = self.config_manager.get_mastodon_instance_url()
-        client_id = self.config_manager.get_client_id()
-        client_secret = self.config_manager.get_client_secret()
-        access_token = self.config_manager.get_access_token()
+        client_id, client_secret = self.config_manager.get_mastodon_client_details()
+        access_token = self.config_manager.get_mastodon_access_token()
         self.mastodon = Mastodon(api_base_url=api_base_url,
                                  client_id=client_id,
                                  client_secret=client_secret,
