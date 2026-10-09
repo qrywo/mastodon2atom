@@ -11,13 +11,13 @@ class ConfigManager:
 
         self.__app_name = os.getenv("APP_NAME")
         if not self.__app_name:
-            self.app_name = "mastodon2atom"
+            self.__app_name = "mastodon2atom"
 
         self.__app_password = os.getenv("APP_PASSWORD")
 
         self.__app_username = os.getenv("APP_USERNAME")
         if not self.__app_username:
-            self.app_username = "mastodon2atom"
+            self.__app_username = "mastodon2atom"
 
         self.__mastodon_client_id = os.getenv("MASTODON_CLIENT_ID")
         self.__mastodon_client_secret = os.getenv("MASTODON_CLIENT_SECRET")
