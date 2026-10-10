@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, Response, abort
+from flask import Flask, redirect, url_for, request, Response, abort, render_template
 from flask_httpauth import HTTPBasicAuth
 from mastodon2atom.config_manager import ConfigManager
 from mastodon2atom.feed_builder import FeedBuilder
@@ -19,8 +19,8 @@ except ValueError as e:
     error_message = str(e)
     @app.before_request
     def invalid_app_password():
-        return Response(response=error_message,
-                        status=503)
+        return render_template("bad_app_password.html",
+                               error_message=error_message)
 
 
 @authentication.verify_password
@@ -38,19 +38,10 @@ def home():
     icon_url = mastodon_client.get_instance_icon()
     feed_token = config_manager.get_app_feed_token()
     app_name = config_manager.get_app_name()
-    page = ('<!DOCTYPE html>'
-            '<html>'
-            '<head>'
-            f'<link rel="icon" href="{icon_url}"/>'
-            f'<link rel="apple-touch-icon" href="{icon_url}"/>'
-            '</head>'
-            '<body>'
-            f'<h1>Your {app_name} server is successfully running!</h1>'
-            f'<p>Use <a href="{url_for("feed", _external=True, token=feed_token)}">this link</a> '
-            'to access your Mastodon home timeline as an ATOM feed.</p>'
-            '</body>'
-            '</html>')
-    return Response(page)
+    return render_template("index.html",
+                           icon_url=icon_url,
+                           feed_url=url_for("feed", _external=True, token=feed_token),
+                           app_name=app_name)
 
 
 @app.get("/oauth/callback")
