@@ -9,6 +9,8 @@ class ConfigManager:
 
         self.__app_feed_token = os.getenv("APP_FEED_TOKEN")
 
+        self.__app_icon_url = os.getenv("APP_ICON_URL") or "https://upload.wikimedia.org/wikipedia/commons/4/43/Feed-icon.svg"
+
         self.__app_name = os.getenv("APP_NAME") or "mastodon2atom"
 
         self.__app_password = os.getenv("APP_PASSWORD")
@@ -23,6 +25,9 @@ class ConfigManager:
 
     def get_app_feed_token(self):
         return self.__app_feed_token
+
+    def get_app_icon_url(self):
+        return self.__app_icon_url
 
     def get_app_name(self):
         return self.__app_name
