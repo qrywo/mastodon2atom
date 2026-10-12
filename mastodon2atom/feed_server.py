@@ -28,7 +28,7 @@ def verify_app_password(username : str, password : str) -> bool:
     password_ok = secrets.compare_digest(password, settings.app_password)
     if not username_ok or not password_ok:
         logging.warning(f"{request.remote_addr} tried to log into the app "
-                        f"with the username {username} and the password {password}, but failed.")
+                        f"with the username {username}, but failed.")
     return username_ok and password_ok
 
 
