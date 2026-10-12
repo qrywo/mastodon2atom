@@ -23,10 +23,10 @@ logging.basicConfig(format=LOG_FORMAT, datefmt=DATE_FORMAT, level="INFO")
 
 
 @authentication.verify_password
-def verify_app_password(username, password):
+def verify_app_password(username : str, password : str) -> bool:
     username_ok = secrets.compare_digest(username, settings.app_username)
     password_ok = secrets.compare_digest(password, settings.app_password)
-    if (not username_ok or not password_ok) and username and password:
+    if not username_ok or not password_ok:
         logging.warning(f"{request.remote_addr} tried to log into the app "
                         f"with the username {username} and the password {password}, but failed.")
     return username_ok and password_ok
@@ -60,7 +60,7 @@ def home():
 @app.get("/oauth/callback")
 @authentication.login_required
 def oauth_callback():
-    code = request.args.get("code")
+    code = request.args.get("code") or ""
     if not mastodon_client.grant_access(code, url_for("oauth_callback", _external=True)):
         app_name = settings.app_name
         logging.error(f"Please authorize {app_name} to access your Mastodon home timeline.")
@@ -77,7 +77,8 @@ def feed(token=None):
     if not feed_token:
         logging.error(f"{request.remote_addr} tried to access the feed, but did not provide a feed token.")
         abort(404)
-    feed_token_ok = secrets.compare_digest(feed_token, credentials.get("APP_FEED_TOKEN"))
+    feed_token = credentials.get("APP_FEED_TOKEN") or ""
+    feed_token_ok = secrets.compare_digest(feed_token, feed_token)
     if not feed_token_ok:
         logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {feed_token}")
         abort(404)

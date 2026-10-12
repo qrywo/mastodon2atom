@@ -1,18 +1,19 @@
 import json
+from pathlib import Path
 
 class Credentials:
 
-    def __init__(self, credentials_file_path):
+    def __init__(self, credentials_file_path : Path):
         self.credentials_file_path = credentials_file_path
 
-    def get(self, key):
+    def get(self, key : str) -> str | None:
         if not self.credentials_file_path.exists():
             return None
         json_credentials = self.credentials_file_path.read_text()
         parsed_credentials = json.loads(json_credentials)
         return parsed_credentials.get(key)
 
-    def set(self, key, value):
+    def set(self, key : str, value : str):
         if not self.credentials_file_path.exists():
             parsed_credentials = {}
         else:

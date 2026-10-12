@@ -1,15 +1,20 @@
 from bs4 import BeautifulSoup
-from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
+from feedgen.entry import FeedEntry
+from feedgen.feed import FeedGenerator
+from mastodon.return_types import Status, CustomEmoji, MediaAttachment
+from mastodon.types_base import NonPaginatableList
+from mastodon2atom.mastodon_client import MastodonClient
+from mastodon2atom.settings import Settings
 
 class FeedBuilder:
 
-    def __init__(self, mastodon_client, settings):
+    def __init__(self, mastodon_client : MastodonClient, settings : Settings):
         self.feed_generator = None
         self.mastodon_client = mastodon_client
         self.settings = settings
 
-    def build_feed(self, feed_url):
+    def build_feed(self, feed_url : str) -> str:
         self.__build_feed_generator(feed_url)
 
         for status in self.mastodon_client.get_home_timeline():
@@ -17,7 +22,7 @@ class FeedBuilder:
 
         return self.feed_generator.atom_str(pretty=True)
 
-    def __build_feed_generator(self, feed_url):
+    def __build_feed_generator(self, feed_url : str):
         self.feed_generator = FeedGenerator()
 
         self.feed_generator.title("\U0001F3E0 @" + self.mastodon_client.get_user().username +
@@ -30,7 +35,7 @@ class FeedBuilder:
         self.feed_generator.link(href=self.mastodon_client.get_home_timeline_url(), rel="alternate", type="text/html")
         self.feed_generator.logo(self.mastodon_client.get_instance_logo())
         self.feed_generator.updated(datetime.now(timezone.utc))
-        self.feed_generator.icon(self.mastodon_client.get_instance_icon())
+        self.feed_generator.icon(self.mastodon_client.get_instance_icon_url())
         self.feed_generator.generator(generator="python-feedgen",
                                       version="1.0.0",
                                       uri="https://lkiesow.github.io/python-feedgen")
@@ -38,7 +43,7 @@ class FeedBuilder:
 
         self.feed_generator.load_extension("media")
 
-    def __build_feed_entry(self, status):
+    def __build_feed_entry(self, status : Status):
         feed_entry = self.feed_generator.add_entry()
 
         feed_entry.published(status.created_at)
@@ -73,7 +78,7 @@ class FeedBuilder:
         feed_entry.content(content=content, type="html")
 
     @staticmethod
-    def __emojify_content(content, emojis):
+    def __emojify_content(content, emojis : NonPaginatableList[CustomEmoji]) -> str:
         for emoji in emojis:
             emoji_text = f":{emoji.shortcode}:"
             emoji_repr = ('<img rel="emoji" '
@@ -89,7 +94,7 @@ class FeedBuilder:
         return content
 
     @staticmethod
-    def __add_media_to_entry(feed_entry, media_attachments):
+    def __add_media_to_entry(feed_entry : FeedEntry, media_attachments : NonPaginatableList[MediaAttachment]):
         for attachment in media_attachments:
             content_url = attachment.url
             medium = attachment.type
@@ -126,9 +131,8 @@ class FeedBuilder:
             feed_entry.media.thumbnail(url=thumbnail_url, width=thumbnail_width, height=thumbnail_height)
 
     @staticmethod
-    def __add_media_to_content(content, media_attachments):
+    def __add_media_to_content(content : str, media_attachments : NonPaginatableList[MediaAttachment]):
         for attachment in media_attachments:
-            attachment_string : str
             url = attachment.url
             alt = attachment.description
             if attachment.type == "image":

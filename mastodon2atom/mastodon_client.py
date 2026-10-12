@@ -1,9 +1,13 @@
 from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError
+from mastodon.return_types import Status, Account
+from mastodon.types_base import PaginatableList
+from mastodon2atom.credentials import Credentials
+from mastodon2atom.settings import Settings
 
 
 class MastodonClient:
 
-    def __init__(self, credentials, settings):
+    def __init__(self, credentials : Credentials, settings : Settings):
         self.credentials = credentials
         self.settings = settings
         self.APP_SCOPES = ["read:statuses", "read:accounts"]
@@ -17,14 +21,14 @@ class MastodonClient:
                                  client_secret=client_secret,
                                  access_token=access_token)
 
-    def is_access_provided(self):
+    def is_access_provided(self) -> bool:
         try:
             self.mastodon.app_verify_credentials()
             return True
         except MastodonUnauthorizedError:
             return False
 
-    def get_access_redirect_url(self, oauth_redirect_url):
+    def get_access_redirect_url(self, oauth_redirect_url : str) -> str:
         api_base_url = self.settings.mastodon_instance_url
         client_id = self.credentials.get("MASTODON_CLIENT_ID")
         client_secret = self.credentials.get("MASTODON_CLIENT_SECRET")
@@ -44,7 +48,7 @@ class MastodonClient:
         return self.mastodon.auth_request_url(scopes=self.APP_SCOPES,
                                               redirect_uris=oauth_redirect_url)
 
-    def grant_access(self, code, oauth_redirect_url):
+    def grant_access(self, code : str, oauth_redirect_url : str) -> bool:
         try:
             access_token = self.mastodon.log_in(code=code,
                                                 scopes=self.APP_SCOPES,
@@ -54,20 +58,20 @@ class MastodonClient:
         except MastodonIllegalArgumentError:
             return False
 
-    def get_home_timeline(self):
+    def get_home_timeline(self) -> PaginatableList[Status]:
         return self.mastodon.timeline_home()
 
-    def get_home_timeline_url(self):
+    def get_home_timeline_url(self) -> str:
         return self.settings.mastodon_instance_home_url
 
-    def get_instance_icon(self):
+    def get_instance_icon_url(self) -> str:
         return self.mastodon.instance_v2().icon[-1].src
 
-    def get_instance_language(self):
+    def get_instance_language(self) -> str:
         return self.mastodon.instance_v2().languages[0]
 
-    def get_instance_logo(self):
+    def get_instance_logo(self) -> str:
         return self.mastodon.instance_v2().thumbnail.url
 
-    def get_user(self):
+    def get_user(self) -> Account:
         return self.mastodon.me()

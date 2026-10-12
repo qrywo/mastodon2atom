@@ -7,25 +7,25 @@ class Settings:
 
     app_icon_url : str
     app_name : str
-    app_password : str | None
+    app_password : str
     app_username : str
     mastodon_instance_domain : str
 
     @property
-    def mastodon_instance_url(self):
+    def mastodon_instance_url(self) -> str:
         return f"https://{self.mastodon_instance_domain}"
 
     @property
-    def mastodon_instance_home_url(self):
+    def mastodon_instance_home_url(self) -> str:
         return f"https://{self.mastodon_instance_domain}/home"
 
     @classmethod
-    def load(cls):
+    def load(cls) -> Settings:
         settings = cls(
             app_icon_url=os.getenv("APP_ICON_URL",
                                    "https://upload.wikimedia.org/wikipedia/commons/4/43/Feed-icon.svg"),
             app_name=os.getenv("APP_NAME", "mastodon2atom"),
-            app_password=os.getenv("APP_PASSWORD"),
+            app_password=os.getenv("APP_PASSWORD", ""),
             app_username=os.getenv("APP_USERNAME", "mastodon2atom"),
             mastodon_instance_domain=os.getenv("MASTODON_INSTANCE_DOMAIN", "mastodon.social")
         )
