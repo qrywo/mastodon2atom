@@ -1,5 +1,9 @@
+env
 .env
+.data/env
 .data/.env
+.data/credentials.json
+.data/.credentials.json
 .idea/
 mastodon2atom/__pycache__/
 .venv/
