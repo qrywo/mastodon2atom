@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 class Credentials:
@@ -23,3 +24,4 @@ class Credentials:
         parsed_credentials[key] = value
         json_credentials = json.dumps(parsed_credentials)
         self.credentials_file_path.write_text(json_credentials)
+        os.chmod(self.credentials_file_path, 0o600)
