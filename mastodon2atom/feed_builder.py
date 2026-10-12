@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from feedgen.entry import FeedEntry
 from feedgen.feed import FeedGenerator
+import html
 from mastodon.return_types import Status, CustomEmoji, MediaAttachment
 from mastodon.types_base import NonPaginatableList
 from mastodon2atom.mastodon_client import MastodonClient
@@ -134,7 +135,7 @@ class FeedBuilder:
     def __add_media_to_content(content : str, media_attachments : NonPaginatableList[MediaAttachment]):
         for attachment in media_attachments:
             url = attachment.url
-            alt = attachment.description
+            alt = html.escape(attachment.description or "")
             if attachment.type == "image":
                 attachment_string = (f'<p><a href="{url}">'
                                      f'<img src="{url}" alt="{alt}"/>'
