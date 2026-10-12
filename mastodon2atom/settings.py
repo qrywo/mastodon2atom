@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
+from typing import Self
 
 @dataclass(frozen=True)
 class Settings:
@@ -22,7 +23,7 @@ class Settings:
         return f"https://{self.mastodon_instance_domain}/home"
 
     @classmethod
-    def load(cls) -> Settings:
+    def load(cls) -> Self:
         settings = cls(
             app_icon_url=os.getenv("APP_ICON_URL",
                                    "https://upload.wikimedia.org/wikipedia/commons/4/43/Feed-icon.svg"),
