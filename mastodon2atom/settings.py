@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import os
+from pathlib import Path
 import re
 
 @dataclass(frozen=True)
@@ -9,6 +10,7 @@ class Settings:
     app_name : str
     app_password : str
     app_username : str
+    credentials_file_path : Path
     mastodon_instance_domain : str
 
     @property
@@ -27,6 +29,7 @@ class Settings:
             app_name=os.getenv("APP_NAME", "mastodon2atom"),
             app_password=os.getenv("APP_PASSWORD", ""),
             app_username=os.getenv("APP_USERNAME", "mastodon2atom"),
+            credentials_file_path=Path(os.getenv("CREDENTIALS_FILE_PATH", "./.data/credentials.json")),
             mastodon_instance_domain=os.getenv("MASTODON_INSTANCE_DOMAIN", "mastodon.social")
         )
         return settings
