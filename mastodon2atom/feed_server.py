@@ -32,13 +32,13 @@ def verify_app_password(username : str, password : str) -> bool:
 
 
 @app.errorhandler(404)
-def feed_not_found(_):
+def not_found(_):
     return (render_template("not_found.html",
                            icon_url=settings.app_icon_url),
             404)
 
 @app.errorhandler(503)
-def bad_app_password(_):
+def service_unavailable(_):
     return (render_template("service_unavailable.html",
                            icon_url=settings.app_icon_url),
             503)

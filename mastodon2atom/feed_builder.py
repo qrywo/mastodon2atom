@@ -16,14 +16,14 @@ class FeedBuilder:
         self.settings = settings
 
     def build_feed(self, feed_url : str) -> str:
-        self.__build_feed_generator(feed_url)
+        self._build_feed_generator(feed_url)
 
         for status in self.mastodon_client.get_home_timeline():
-            self.__build_feed_entry(status)
+            self._build_feed_entry(status)
 
         return self.feed_generator.atom_str(pretty=True)
 
-    def __build_feed_generator(self, feed_url : str):
+    def _build_feed_generator(self, feed_url : str):
         self.feed_generator = FeedGenerator()
 
         self.feed_generator.title("\U0001F3E0 @" + self.mastodon_client.get_user().username +
@@ -44,11 +44,11 @@ class FeedBuilder:
 
         self.feed_generator.load_extension("media")
 
-    def __build_feed_entry(self, status : Status):
+    def _build_feed_entry(self, status : Status):
         feed_entry = self.feed_generator.add_entry()
 
         feed_entry.published(status.created_at)
-        feed_entry.updated(status.edited_at)
+        feed_entry.updated(status.edited_at or status.created_at)
 
         if status.reblog is not None:
             original_status = status.reblog
@@ -64,7 +64,7 @@ class FeedBuilder:
                           uri=original_status.account.url)
 
         content = str(original_status.content)
-        content = self.__emojify_content(content, original_status.emojis)
+        content = self._emojify_content(content, original_status.emojis)
 
         soup = BeautifulSoup(content, "html.parser")
         summary = soup.get_text()
@@ -72,14 +72,14 @@ class FeedBuilder:
         for tag in original_status.tags:
             feed_entry.category(term=tag.name, label="#" + tag.name)
 
-        self.__add_media_to_entry(feed_entry, original_status.media_attachments)
-        content = self.__add_media_to_content(content, original_status.media_attachments)
+        self._add_media_to_entry(feed_entry, original_status.media_attachments)
+        content = self._add_media_to_content(content, original_status.media_attachments)
 
         feed_entry.summary(summary=summary, type="text")
         feed_entry.content(content=content, type="html")
 
     @staticmethod
-    def __emojify_content(content, emojis : NonPaginatableList[CustomEmoji]) -> str:
+    def _emojify_content(content, emojis : NonPaginatableList[CustomEmoji]) -> str:
         for emoji in emojis:
             emoji_text = f":{emoji.shortcode}:"
             emoji_repr = ('<img rel="emoji" '
@@ -95,7 +95,7 @@ class FeedBuilder:
         return content
 
     @staticmethod
-    def __add_media_to_entry(feed_entry : FeedEntry, media_attachments : NonPaginatableList[MediaAttachment]):
+    def _add_media_to_entry(feed_entry : FeedEntry, media_attachments : NonPaginatableList[MediaAttachment]):
         for attachment in media_attachments:
             content_url = attachment.url
             medium = attachment.type
@@ -132,7 +132,7 @@ class FeedBuilder:
             feed_entry.media.thumbnail(url=thumbnail_url, width=thumbnail_width, height=thumbnail_height)
 
     @staticmethod
-    def __add_media_to_content(content : str, media_attachments : NonPaginatableList[MediaAttachment]):
+    def _add_media_to_content(content : str, media_attachments : NonPaginatableList[MediaAttachment]):
         for attachment in media_attachments:
             url = attachment.url
             alt = html.escape(attachment.description or "")
