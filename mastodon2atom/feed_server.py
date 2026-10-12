@@ -48,7 +48,7 @@ def service_unavailable(_):
 def home():
     if not mastodon_client.is_access_provided():
         return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True)))
-    feed_token = credentials.get("APP_FEED_TOKEN")
+    feed_token = credentials.app_feed_token
     app_name = settings.app_name
     return render_template("index.html",
                            icon_url=settings.app_icon_url,
@@ -64,8 +64,7 @@ def oauth_callback():
         app_name = settings.app_name
         logging.error(f"Please authorize {app_name} to access your Mastodon home timeline.")
         abort(503)
-    feed_token = secrets.token_urlsafe(32)
-    credentials.set("APP_FEED_TOKEN", feed_token)
+    credentials.app_feed_token = secrets.token_urlsafe(32)
     return redirect(url_for("home"))
 
 
@@ -73,7 +72,7 @@ def oauth_callback():
 @app.get("/feed/<token>")
 def feed(token=None):
     provided_feed_token = token or request.args.get("token") or ""
-    correct_feed_token = credentials.get("APP_FEED_TOKEN") or ""
+    correct_feed_token = credentials.app_feed_token or ""
     feed_token_ok = secrets.compare_digest(provided_feed_token, correct_feed_token)
     if not provided_feed_token or not feed_token_ok:
         logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {provided_feed_token}")
