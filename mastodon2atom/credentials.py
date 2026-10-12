@@ -10,7 +10,7 @@ class Credentials:
             return None
         json_credentials = self.credentials_file_path.read_text()
         parsed_credentials = json.loads(json_credentials)
-        return parsed_credentials
+        return parsed_credentials.get(key)
 
     def set(self, key, value):
         if not self.credentials_file_path.exists():
