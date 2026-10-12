@@ -73,14 +73,11 @@ def oauth_callback():
 @app.get("/feed")
 @app.get("/feed/<token>")
 def feed(token=None):
-    feed_token = token or request.args.get("token")
-    if not feed_token:
-        logging.error(f"{request.remote_addr} tried to access the feed, but did not provide a feed token.")
-        abort(404)
-    feed_token = credentials.get("APP_FEED_TOKEN") or ""
-    feed_token_ok = secrets.compare_digest(feed_token, feed_token)
-    if not feed_token_ok:
-        logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {feed_token}")
+    provided_feed_token = token or request.args.get("token") or ""
+    correct_feed_token = credentials.get("APP_FEED_TOKEN") or ""
+    feed_token_ok = secrets.compare_digest(provided_feed_token, correct_feed_token)
+    if not provided_feed_token or not feed_token_ok:
+        logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {provided_feed_token}")
         abort(404)
     if not mastodon_client.is_access_provided():
         app_name = settings.app_name
@@ -89,7 +86,7 @@ def feed(token=None):
                       "and restart the application.")
         abort(503)
     logging.info(f"{request.remote_addr} accessed the feed successfully.")
-    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=feed_token)),
+    return Response(feed_builder.build_feed(url_for("feed", _external=True, token=correct_feed_token)),
                     mimetype="application/xml")
 
 
