@@ -5,6 +5,7 @@ class Credentials:
 
     def __init__(self, credentials_file_path : Path):
         self.credentials_file_path = credentials_file_path
+        self.credentials_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     def get(self, key : str) -> str | None:
         if not self.credentials_file_path.exists():
