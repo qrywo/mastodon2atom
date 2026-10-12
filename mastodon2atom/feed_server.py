@@ -5,10 +5,11 @@ from mastodon2atom.credentials import Credentials
 from mastodon2atom.feed_builder import FeedBuilder
 from mastodon2atom.mastodon_client import MastodonClient
 from mastodon2atom.settings import Settings
+from pathlib import Path
 import secrets
 
 
-credentials = Credentials("./.data/credentials.json")
+credentials = Credentials(Path("./.data/credentials.json"))
 settings = Settings.load()
 
 app = Flask(settings.app_name)
