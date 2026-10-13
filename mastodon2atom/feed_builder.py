@@ -11,43 +11,45 @@ from mastodon2atom.settings import Settings
 class FeedBuilder:
 
     def __init__(self, mastodon_client : MastodonClient, settings : Settings):
-        self.feed_generator = None
         self.mastodon_client = mastodon_client
         self.settings = settings
 
     def build_feed(self, feed_url : str) -> str:
-        self._build_feed_generator(feed_url)
+        feed_generator = self._build_feed_generator(feed_url)
 
         for status in self.mastodon_client.get_home_timeline():
-            self._build_feed_entry(status)
+            self._build_feed_entry(feed_generator, status)
 
-        return self.feed_generator.atom_str(pretty=True)
+        return feed_generator.atom_str(pretty=True)
 
-    def _build_feed_generator(self, feed_url : str):
-        self.feed_generator = FeedGenerator()
+    def _build_feed_generator(self, feed_url : str) -> FeedGenerator:
+        feed_generator = FeedGenerator()
 
         user = self.mastodon_client.get_user()
-        self.feed_generator.title("\U0001F3E0 @" + user.username +
-                                  "@" + self.settings.mastodon_instance_domain)
-        self.feed_generator.subtitle(f"\U0001F464: {user.display_name} " +
-                                     f"({user.username});\t" +
-                                     f"\U0001F310: {self.settings.mastodon_instance_domain}")
-        self.feed_generator.id(feed_url)
-        self.feed_generator.link(href=feed_url, rel="self", type="application/atom+xml")
-        self.feed_generator.link(href=self.settings.mastodon_instance_home_url, rel="alternate", type="text/html")
+        feed_generator.title("\U0001F3E0 @" + user.username +
+                             "@" + self.settings.mastodon_instance_domain)
+        feed_generator.subtitle(f"\U0001F464: {user.display_name} " +
+                                f"({user.username});\t" +
+                                f"\U0001F310: {self.settings.mastodon_instance_domain}")
+
+        feed_generator.id(feed_url)
+        feed_generator.link(href=feed_url, rel="self", type="application/atom+xml")
+        feed_generator.link(href=self.settings.mastodon_instance_home_url, rel="alternate", type="text/html")
+
         instance = self.mastodon_client.get_instance()
-        self.feed_generator.logo(instance.thumbnail.url)
-        self.feed_generator.updated(datetime.now(timezone.utc))
-        self.feed_generator.icon(instance.icon[-1].src)
-        self.feed_generator.generator(generator="python-feedgen",
+        feed_generator.logo(instance.thumbnail.url)
+        feed_generator.updated(datetime.now(timezone.utc))
+        feed_generator.icon(instance.icon[-1].src)
+        feed_generator.generator(generator="python-feedgen",
                                       version="1.0.0",
                                       uri="https://lkiesow.github.io/python-feedgen")
-        self.feed_generator.language(instance.languages[0])
+        feed_generator.language(instance.languages[0])
 
-        self.feed_generator.load_extension("media")
+        feed_generator.load_extension("media")
+        return feed_generator
 
-    def _build_feed_entry(self, status : Status):
-        feed_entry = self.feed_generator.add_entry()
+    def _build_feed_entry(self, feed_generator : FeedGenerator, status : Status):
+        feed_entry = feed_generator.add_entry()
 
         feed_entry.published(status.created_at)
         feed_entry.updated(status.edited_at or status.created_at)
