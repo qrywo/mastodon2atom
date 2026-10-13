@@ -36,7 +36,7 @@ class MastodonClient:
         except MastodonError as e:
             return AccessMode.UNAVAILABLE, type(e).__name__
 
-    def get_access_redirect_url(self, oauth_redirect_url : str) -> str:
+    def get_access_redirect_url(self, oauth_redirect_url : str, state : str) -> str:
         api_base_url = self.settings.mastodon_instance_url
         client_id = self.credentials.mastodon_client_id
         client_secret = self.credentials.mastodon_client_secret
@@ -53,8 +53,10 @@ class MastodonClient:
         self.mastodon = Mastodon(api_base_url=api_base_url,
                                  client_id=client_id,
                                  client_secret=client_secret)
-        return self.mastodon.auth_request_url(scopes=self.app_scopes,
-                                              redirect_uris=oauth_redirect_url)
+        return self.mastodon.auth_request_url(client_id=client_id,
+                                              redirect_uris=oauth_redirect_url,
+                                              scopes=self.app_scopes,
+                                              state=state)
 
     def grant_access(self, code : str, oauth_redirect_url : str) -> bool:
         try:

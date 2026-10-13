@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, Response, abort, render_template
+from flask import Flask, redirect, url_for, request, Response, abort, render_template, session
 from flask_httpauth import HTTPBasicAuth
 import logging
 from mastodon2atom.access_mode import AccessMode
@@ -15,6 +15,8 @@ credentials = Credentials(settings.credentials_file_path)
 
 app = Flask(settings.app_name)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+app.secret_key = secrets.token_hex(32)
+
 authentication = HTTPBasicAuth()
 mastodon_client = MastodonClient(credentials, settings)
 feed_builder = FeedBuilder(mastodon_client, settings)
@@ -51,7 +53,9 @@ def service_unavailable(_):
 def home():
     result, error_name = mastodon_client.is_access_provided()
     if result is AccessMode.UNAUTHORIZED:
-        return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True)))
+        session["state"] = secrets.token_hex(16)
+        return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True),
+                                                                session["state"]))
     if result is AccessMode.UNAVAILABLE:
         logging.error(result.value + error_name)
         abort(503)
@@ -66,6 +70,11 @@ def home():
 @app.get("/oauth/callback")
 @authentication.login_required
 def oauth_callback():
+    state = request.args.get("state")
+    if state != session["state"]:
+        logging.error(f"{request.remote_addr} tried to access the callback from a different login flow.")
+        abort(404)
+
     code = request.args.get("code") or ""
     if not mastodon_client.grant_access(code, url_for("oauth_callback", _external=True)):
         app_name = settings.app_name
