@@ -35,9 +35,9 @@ class Settings:
         )
         return settings
 
-    def validate_app_password(self):
-        password_regex = "[a-zA-Z0-9_-]+"
-        compiled_password_regex = re.compile(password_regex)
+    def validate(self):
+        regex = "[!()*+,.0-9;<=>A-Z_a-z{|}~-]+"
+        compiled_regex = re.compile(regex)
         black_list = ["password", "mastodon", "atom", "mastodon2atom", "feed", "12345678"]
 
         if not self.app_password:
@@ -47,5 +47,7 @@ class Settings:
         for black_string in black_list:
             if black_string in self.app_password:
                 raise ValueError(f"The app password contains the following invalid string: {black_string}")
-        if compiled_password_regex.fullmatch(self.app_password) is None:
-            raise ValueError(f"The app password does not match the following regex: {password_regex}")
+        if compiled_regex.fullmatch(self.app_username) is None:
+            raise ValueError(f"The app username does not match the following regex: {regex}")
+        if compiled_regex.fullmatch(self.app_password) is None:
+            raise ValueError(f"The app password does not match the following regex: {regex}")

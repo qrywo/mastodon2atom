@@ -94,7 +94,7 @@ def favicon():
 
 
 try:
-    settings.validate_app_password()
+    settings.validate()
 except ValueError as e:
     error_message = str(e)
     @app.before_request
