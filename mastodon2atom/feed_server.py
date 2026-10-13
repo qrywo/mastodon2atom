@@ -40,6 +40,7 @@ def verify_app_password(username : str, password : str) -> bool:
 @authentication.login_required
 def home():
     result, error_name = mastodon_client.is_access_provided()
+
     if result is AccessMode.UNAUTHORIZED:
         session["state"] = secrets.token_hex(16)
         return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True),
@@ -47,6 +48,7 @@ def home():
     if result is AccessMode.UNAVAILABLE:
         logging.error(result.value + error_name)
         abort(503)
+
     feed_token = credentials.app_feed_token
     app_name = settings.app_name
     return render_template("index.html",
@@ -89,6 +91,7 @@ def feed(token=None):
     provided_feed_token = token or request.args.get("token") or ""
     correct_feed_token = credentials.app_feed_token or ""
     feed_token_ok = secrets.compare_digest(provided_feed_token, correct_feed_token)
+
     if not provided_feed_token or not feed_token_ok:
         logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {provided_feed_token}")
         abort(404)
@@ -100,9 +103,10 @@ def feed(token=None):
     if result is AccessMode.UNAVAILABLE:
         logging.error(result.value + error_name)
         abort(503)
+
     logging.info(f"{request.remote_addr} accessed the feed successfully.")
     return Response(feed_builder.build_feed(url_for("feed", _external=True, token=correct_feed_token)),
-                    mimetype="application/xml")
+                    mimetype="application/atom+xml")
 
 
 @app.get("/favicon.ico")
