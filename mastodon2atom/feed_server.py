@@ -7,12 +7,14 @@ from mastodon2atom.feed_builder import FeedBuilder
 from mastodon2atom.mastodon_client import MastodonClient
 from mastodon2atom.settings import Settings
 import secrets
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 settings = Settings.load()
 credentials = Credentials(settings.credentials_file_path)
 
 app = Flask(settings.app_name)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 authentication = HTTPBasicAuth()
 mastodon_client = MastodonClient(credentials, settings)
 feed_builder = FeedBuilder(mastodon_client, settings)
