@@ -26,21 +26,23 @@ class FeedBuilder:
     def _build_feed_generator(self, feed_url : str):
         self.feed_generator = FeedGenerator()
 
-        self.feed_generator.title("\U0001F3E0 @" + self.mastodon_client.get_user().username +
+        user = self.mastodon_client.get_user()
+        self.feed_generator.title("\U0001F3E0 @" + user.username +
                                   "@" + self.settings.mastodon_instance_domain)
-        self.feed_generator.subtitle(f"\U0001F464: {self.mastodon_client.get_user().display_name} " +
-                                     f"({self.mastodon_client.get_user().username});\t" +
+        self.feed_generator.subtitle(f"\U0001F464: {user.display_name} " +
+                                     f"({user.username});\t" +
                                      f"\U0001F310: {self.settings.mastodon_instance_domain}")
         self.feed_generator.id(feed_url)
         self.feed_generator.link(href=feed_url, rel="self", type="application/atom+xml")
-        self.feed_generator.link(href=self.mastodon_client.get_home_timeline_url(), rel="alternate", type="text/html")
-        self.feed_generator.logo(self.mastodon_client.get_instance_logo())
+        self.feed_generator.link(href=self.settings.mastodon_instance_home_url, rel="alternate", type="text/html")
+        instance = self.mastodon_client.get_instance()
+        self.feed_generator.logo(instance.thumbnail.url)
         self.feed_generator.updated(datetime.now(timezone.utc))
-        self.feed_generator.icon(self.mastodon_client.get_instance_icon_url())
+        self.feed_generator.icon(instance.icon[-1].src)
         self.feed_generator.generator(generator="python-feedgen",
                                       version="1.0.0",
                                       uri="https://lkiesow.github.io/python-feedgen")
-        self.feed_generator.language(self.mastodon_client.get_instance_language())
+        self.feed_generator.language(instance.languages[0])
 
         self.feed_generator.load_extension("media")
 

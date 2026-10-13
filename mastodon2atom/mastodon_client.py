@@ -1,5 +1,5 @@
 from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError
-from mastodon.return_types import Status, Account
+from mastodon.return_types import Account, InstanceV2, Status
 from mastodon.types_base import PaginatableList
 from mastodon2atom.credentials import Credentials
 from mastodon2atom.settings import Settings
@@ -61,17 +61,8 @@ class MastodonClient:
     def get_home_timeline(self) -> PaginatableList[Status]:
         return self.mastodon.timeline_home()
 
-    def get_home_timeline_url(self) -> str:
-        return self.settings.mastodon_instance_home_url
-
-    def get_instance_icon_url(self) -> str:
-        return self.mastodon.instance_v2().icon[-1].src
-
-    def get_instance_language(self) -> str:
-        return self.mastodon.instance_v2().languages[0]
-
-    def get_instance_logo(self) -> str:
-        return self.mastodon.instance_v2().thumbnail.url
+    def get_instance(self) -> InstanceV2:
+        return self.mastodon.instance_v2()
 
     def get_user(self) -> Account:
         return self.mastodon.me()
