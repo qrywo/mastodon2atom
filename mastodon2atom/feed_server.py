@@ -36,18 +36,6 @@ def verify_app_password(username : str, password : str) -> bool:
     return username_ok and password_ok
 
 
-@app.errorhandler(404)
-def not_found(_):
-    return (render_template("not_found.html",
-                           icon_url=settings.app_icon_url),
-            404)
-
-@app.errorhandler(503)
-def service_unavailable(_):
-    return (render_template("service_unavailable.html",
-                           icon_url=settings.app_icon_url),
-            503)
-
 @app.get("/")
 @authentication.login_required
 def home():
@@ -72,14 +60,25 @@ def home():
 def oauth_callback():
     state = request.args.get("state")
     if state != session["state"]:
-        logging.error(f"{request.remote_addr} tried to access the callback from a different login flow.")
-        abort(404)
+        logging.error(f"{request.remote_addr} tried to access the oauth callback with an invalid state.")
+        abort(400)
+    session.pop("state")
+
+    error = request.args.get("error")
+    error_description = request.args.get("error_description")
+    if error:
+        logging.error(error_description)
+        abort(400)
 
     code = request.args.get("code") or ""
-    if not mastodon_client.grant_access(code, url_for("oauth_callback", _external=True)):
-        app_name = settings.app_name
-        logging.error(f"Please authorize {app_name} to access your Mastodon home timeline.")
+    result, error_name = mastodon_client.grant_access(code, url_for("oauth_callback", _external=True))
+    if result is AccessMode.UNAUTHORIZED:
+        logging.error(result.value)
+        abort(400)
+    if result is AccessMode.UNAVAILABLE:
+        logging.error(result.value + error_name)
         abort(503)
+
     credentials.app_feed_token = secrets.token_urlsafe(32)
     return redirect(url_for("home"))
 

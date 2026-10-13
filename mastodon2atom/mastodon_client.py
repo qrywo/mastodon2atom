@@ -1,5 +1,4 @@
-from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError, MastodonNetworkError, \
-    MastodonAPIError, MastodonNotFoundError, MastodonServerError, MastodonRatelimitError, MastodonError
+from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError, MastodonError, MastodonAPIError
 from mastodon.return_types import Account, InstanceV2, Status
 from mastodon.types_base import PaginatableList
 from mastodon2atom.access_mode import AccessMode
@@ -29,10 +28,6 @@ class MastodonClient:
             return AccessMode.OK, ""
         except MastodonUnauthorizedError:
             return AccessMode.UNAUTHORIZED, ""
-        except (MastodonNetworkError, MastodonAPIError,
-                MastodonNotFoundError, MastodonServerError,
-                MastodonRatelimitError) as e:
-            return AccessMode.UNAVAILABLE, type(e).__name__
         except MastodonError as e:
             return AccessMode.UNAVAILABLE, type(e).__name__
 
@@ -58,15 +53,17 @@ class MastodonClient:
                                               scopes=self.app_scopes,
                                               state=state)
 
-    def grant_access(self, code : str, oauth_redirect_url : str) -> bool:
+    def grant_access(self, code : str, oauth_redirect_url : str) -> tuple[AccessMode, str]:
         try:
             access_token = self.mastodon.log_in(code=code,
                                                 scopes=self.app_scopes,
                                                 redirect_uri=oauth_redirect_url)
             self.credentials.mastodon_access_token = access_token
-            return True
-        except MastodonIllegalArgumentError:
-            return False
+            return AccessMode.OK, ""
+        except MastodonIllegalArgumentError, MastodonAPIError:
+            return AccessMode.UNAUTHORIZED, ""
+        except MastodonError as e:
+            return AccessMode.UNAVAILABLE, type(e).__name__
 
     def get_home_timeline(self) -> PaginatableList[Status]:
         return self.mastodon.timeline_home()
