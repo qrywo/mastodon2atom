@@ -1,6 +1,8 @@
-from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError
+from mastodon import Mastodon, MastodonUnauthorizedError, MastodonIllegalArgumentError, MastodonNetworkError, \
+    MastodonAPIError, MastodonNotFoundError, MastodonServerError, MastodonRatelimitError, MastodonError
 from mastodon.return_types import Account, InstanceV2, Status
 from mastodon.types_base import PaginatableList
+from mastodon2atom.access_mode import AccessMode
 from mastodon2atom.credentials import Credentials
 from mastodon2atom.settings import Settings
 
@@ -21,12 +23,18 @@ class MastodonClient:
                                  client_secret=client_secret,
                                  access_token=access_token)
 
-    def is_access_provided(self) -> bool:
+    def is_access_provided(self) -> tuple[AccessMode, str]:
         try:
             self.mastodon.app_verify_credentials()
-            return True
+            return AccessMode.OK, ""
         except MastodonUnauthorizedError:
-            return False
+            return AccessMode.UNAUTHORIZED, ""
+        except (MastodonNetworkError, MastodonAPIError,
+                MastodonNotFoundError, MastodonServerError,
+                MastodonRatelimitError) as e:
+            return AccessMode.UNAVAILABLE, type(e).__name__
+        except MastodonError as e:
+            return AccessMode.UNAVAILABLE, type(e).__name__
 
     def get_access_redirect_url(self, oauth_redirect_url : str) -> str:
         api_base_url = self.settings.mastodon_instance_url

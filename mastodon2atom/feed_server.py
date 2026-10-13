@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, request, Response, abort, render_template
 from flask_httpauth import HTTPBasicAuth
 import logging
+from mastodon2atom.access_mode import AccessMode
 from mastodon2atom.credentials import Credentials
 from mastodon2atom.feed_builder import FeedBuilder
 from mastodon2atom.mastodon_client import MastodonClient
@@ -46,8 +47,12 @@ def service_unavailable(_):
 @app.get("/")
 @authentication.login_required
 def home():
-    if not mastodon_client.is_access_provided():
+    result, error_name = mastodon_client.is_access_provided()
+    if result is AccessMode.UNAUTHORIZED:
         return redirect(mastodon_client.get_access_redirect_url(url_for("oauth_callback", _external=True)))
+    if result is AccessMode.UNAVAILABLE:
+        logging.error(result.value + error_name)
+        abort(503)
     feed_token = credentials.app_feed_token
     app_name = settings.app_name
     return render_template("index.html",
@@ -77,11 +82,13 @@ def feed(token=None):
     if not provided_feed_token or not feed_token_ok:
         logging.info(f"{request.remote_addr} tried to use the following invalid feed token: {provided_feed_token}")
         abort(404)
-    if not mastodon_client.is_access_provided():
-        app_name = settings.app_name
-        logging.error(f"The access token for {app_name} seems to be invalid. "
-                      "Please delete the credentials.json file in the .data folder "
-                      "and restart the application.")
+
+    result, error_name = mastodon_client.is_access_provided()
+    if result is AccessMode.UNAUTHORIZED:
+        logging.error(result.value)
+        abort(503)
+    if result is AccessMode.UNAVAILABLE:
+        logging.error(result.value + error_name)
         abort(503)
     logging.info(f"{request.remote_addr} accessed the feed successfully.")
     return Response(feed_builder.build_feed(url_for("feed", _external=True, token=correct_feed_token)),
