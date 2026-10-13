@@ -25,7 +25,7 @@ Run the Docker container with the following command (replace `[YOUR_APP_PASSWORD
 docker run -d -v .data:/app/.data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] mastodon2atom
 ```
 
-Now type the IP address or domain of your server into the web browser and follow the instructions of the configuration process. You will have to log in and authorize the application to access your Mastodon home timeline. If everything went well, you will receive a link to access the ATOM feed. If an error occurs, please check the logs of the docker container for further information.
+Now type the IP address or domain of your server into the web browser and follow the instructions of the configuration process. You will have to log in (first, with your app username and your app password, and second, into your Mastodon account) and authorize the application to access your Mastodon home timeline. If everything went well, you will receive a link to access the ATOM feed. If an error occurs, please check the logs of the docker container for further information.
 
 # Environment Variables
 
