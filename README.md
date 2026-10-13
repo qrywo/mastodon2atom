@@ -4,7 +4,7 @@ mastodon2atom lets you run an ATOM feed server to access your personal home time
 
 # Setup
 
-If you want to run the ATOM feed server on a remote server, please configure a proper HTTPS capable reverse proxy (e.g. with nginx + certbot or caddy) and point the reverse proxy to the local IP address [http://127.0.0.1:8000](http://127.0.0.1:8000).
+If you want to run the ATOM feed server on a remote server, please configure a proper HTTPS capable reverse proxy (e.g., with nginx + certbot or caddy) and point the reverse proxy to the local IP address [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 Clone the project and change the directory to the repository.
 
