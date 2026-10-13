@@ -33,6 +33,9 @@ def verify_app_password(username : str, password : str) -> bool:
     if (not username_ok or not password_ok) and username and password:
         logging.warning(f"{request.remote_addr} tried to log into the app "
                         f"with the username {username}, but failed.")
+    if username_ok and password_ok:
+        logging.info(f"{request.remote_addr} logged into the app successfully "
+                     f"with the username {username}.")
     return username_ok and password_ok
 
 
@@ -82,6 +85,7 @@ def oauth_callback():
         abort(503)
 
     credentials.app_feed_token = secrets.token_urlsafe(32)
+    logging.info("The app feed token was regenerated.")
     return redirect(url_for("home"))
 
 
