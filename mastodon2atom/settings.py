@@ -27,10 +27,10 @@ class Settings:
         settings = cls(
             app_icon_url=os.getenv("APP_ICON_URL",
                                    "https://upload.wikimedia.org/wikipedia/commons/4/43/Feed-icon.svg"),
-            app_name=os.getenv("APP_NAME", "mastodon2atom"),
+            app_name="mastodon2atom",
             app_password=os.getenv("APP_PASSWORD", ""),
             app_username=os.getenv("APP_USERNAME", "mastodon2atom"),
-            credentials_file_path=Path(os.getenv("CREDENTIALS_FILE_PATH", "./.data/credentials.json")),
+            credentials_file_path=Path("./.data/credentials.json"),
             mastodon_instance_domain=os.getenv("MASTODON_INSTANCE_DOMAIN", "mastodon.social")
         )
         return settings

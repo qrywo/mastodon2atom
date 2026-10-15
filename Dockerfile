@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY mastodon2atom/ ./mastodon2atom/
+COPY mastodon2atom/ /app/mastodon2atom/
 
 EXPOSE 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "mastodon2atom.feed_server:app"]
