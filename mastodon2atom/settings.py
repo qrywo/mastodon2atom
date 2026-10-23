@@ -30,7 +30,7 @@ class Settings:
             app_name="mastodon2atom",
             app_password=os.getenv("APP_PASSWORD", ""),
             app_username=os.getenv("APP_USERNAME", "mastodon2atom"),
-            credentials_file_path=Path("./.data/credentials.json"),
+            credentials_file_path=Path("./.mastodon2atom_data/credentials.json"),
             mastodon_instance_domain=os.getenv("MASTODON_INSTANCE_DOMAIN", "mastodon.social")
         )
         return settings

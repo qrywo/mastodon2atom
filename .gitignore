@@ -4,6 +4,10 @@ env
 .data/.env
 .data/credentials.json
 .data/.credentials.json
+.mastodon2atom_data/env
+.mastodon2atom_data/.env
+.mastodon2atom_data/credentials.json
+.mastodon2atom_data/.credentials.json
 .idea/
 mastodon2atom/__pycache__/
 .venv/
