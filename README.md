@@ -2,7 +2,7 @@
 
 mastodon2atom lets you run an ATOM feed server to access your personal home timeline on Mastodon as an ATOM feed.
 
-Mastodon offers RSS feeds for the toots of a specific user (e.g., [https://mastodon.social/@Mastodon.rss](https://mastodon.social/@Mastodon.rss)). However, there is currently (as of October 2026) no option to access the personal home timeline on Mastodon as an RSS/ATOM feed. That's why I built this tool.
+Mastodon offers RSS feeds for the toots of a specific user (e.g., [https://mastodon.social/@Mastodon.rss](https://mastodon.social/@Mastodon.rss)). However, there is currently (as of October 2026) no option to access the personal home timeline on Mastodon as an RSS/ATOM feed ([here](https://github.com/mastodon/mastodon/issues/18601) is the open GitHub issue). That's why I built this tool.
 
 # Setup
 
