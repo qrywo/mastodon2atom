@@ -1,13 +1,7 @@
 env
 .env
-.data/env
-.data/.env
-.data/credentials.json
-.data/.credentials.json
-.mastodon2atom_data/env
-.mastodon2atom_data/.env
-.mastodon2atom_data/credentials.json
-.mastodon2atom_data/.credentials.json
+.data/
+.mastodon2atom_data/
 .git/
 .gitignore
 .idea/
