@@ -16,10 +16,10 @@ You can run the Docker container with one of the two following options.
 
 ### A) Quick Start
 
-Run the Docker container with the following command (replace `[YOUR_APP_PASSWORD]` with a secure password, obviously).
+Run the Docker container with the following command. Replace `[YOUR_APP_PASSWORD]` with a secure password, obviously.
 
 ```shell
-docker run -d -v .mastodon2atom_data:/app/.data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] qrywo/mastodon2atom
+docker run -d -v .mastodon2atom_data:/app/.mastodon2atom_data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] qrywo/mastodon2atom
 ```
 
 ### B) Building the Image Yourself
@@ -37,10 +37,10 @@ Build the Docker container.
 docker build -t mastodon2atom .
 ```
 
-Run the Docker container with the following command (replace `[YOUR_APP_PASSWORD]` with a secure password, obviously). You can adjust the options if necessary.
+Run the Docker container with the following command. Replace `[YOUR_APP_PASSWORD]` with a secure password, obviously. You can adjust the options if necessary.
 
 ```shell
-docker run -d -v .mastodon2atom_data:/app/.data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] mastodon2atom
+docker run -d -v .mastodon2atom_data:/app/.mastodon2atom_data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] mastodon2atom
 ```
 
 It is not necessary to mount the `.mastodon2atom_data` folder into the docker container. However, the `.mastodon2atom_data` folder contains the Mastodon access token and the app feed token. So if you do not want to authorize mastodon2atom and copy the new app feed token into your feed reader after every restart of the docker container, this is highly recommended.
