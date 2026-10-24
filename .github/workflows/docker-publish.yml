@@ -1,4 +1,4 @@
-name: Publish Docker Image to Docker Hub
+name: Publish Docker Image to Docker Hub And GHCR
 
 on:
   push:
@@ -13,25 +13,38 @@ on:
 jobs:
   publish_docker_image:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
 
       - uses: actions/checkout@v7
-
-      - id: metadata
-        uses: docker/metadata-action@v6
-        with:
-          images: qrywo/mastodon2atom
-          tags: |
-            type=edge,branch=main
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
 
       - uses: docker/login-action@v4
         if: github.event_name != 'pull_request'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/login-action@v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: |
+            qrywo/mastodon2atom
+            ghcr.io/qrywo/mastodon2atom
+          tags: |
+            type=edge,branch=main
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
 
       - uses: docker/setup-qemu-action@v4
 
