@@ -19,8 +19,10 @@ You can run the Docker container with one of the two following options.
 Run the Docker container with the following command. Replace `[YOUR_APP_PASSWORD]` with a secure password, obviously.
 
 ```shell
-docker run -d -v .mastodon2atom_data:/app/.mastodon2atom_data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] qrywo/mastodon2atom
+docker run -d -v .mastodon2atom_data:/app/.mastodon2atom_data -p 127.0.0.1:8000:8000 --restart unless-stopped -e APP_PASSWORD=[YOUR_APP_PASSWORD] ghcr.io/qrywo/mastodon2atom
 ```
+
+Alternatively, you can pull the Docker image from Docker Hub instead of GitHub Container Registry (with `qrywo/mastodon2atom` instead of `ghcr.io/qrywo/mastodon2atom`).
 
 ### B) Building the Image Yourself
 
